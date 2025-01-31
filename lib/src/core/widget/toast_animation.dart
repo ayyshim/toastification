@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:toastification/src/helper/toast_helper.dart';
+import 'package:toastification/src/utils/common_utils.dart';
 import 'package:toastification/toastification.dart';
 
 /// This class is responsible for creating the default animation for the toastification
