@@ -117,7 +117,7 @@ class _ToastTimerAnimationBuilderState extends State<ToastTimerAnimationBuilder>
   void _initAnimation() {
     if (widget.item.hasTimer) {
       controller = AnimationController(
-        value: ToastHelper.convertRange(
+        value: CommonUtils.convertRange(
           0,
           widget.item.originalDuration!.inMicroseconds.toDouble(),
           0,
