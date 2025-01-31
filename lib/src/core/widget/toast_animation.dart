@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:toastification/src/utils/common_utils.dart';
+import 'package:toastification/src/helper/toast_helper.dart';
 import 'package:toastification/toastification.dart';
 
 /// This class is responsible for creating the default animation for the toastification
@@ -59,7 +59,7 @@ class ToastTimerAnimationBuilder extends StatefulWidget {
 
   final ToastificationItem item;
 
-  final ValueWidgetBuilder<double> builder;
+  final ValueWidgetBuilder<double?> builder;
 
   final Widget? child;
 
@@ -70,7 +70,7 @@ class ToastTimerAnimationBuilder extends StatefulWidget {
 
 class _ToastTimerAnimationBuilderState extends State<ToastTimerAnimationBuilder>
     with SingleTickerProviderStateMixin {
-  late AnimationController controller;
+  AnimationController? controller;
 
   @override
   void initState() {
@@ -96,24 +96,28 @@ class _ToastTimerAnimationBuilderState extends State<ToastTimerAnimationBuilder>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      child: widget.child,
-      builder: (context, child) {
-        return widget.builder(context, controller.value, child);
-      },
-    );
+    if (controller != null) {
+      return AnimatedBuilder(
+        animation: controller!,
+        child: widget.child,
+        builder: (context, child) {
+          return widget.builder(context, controller!.value, child);
+        },
+      );
+    }
+
+    return widget.builder(context, null, widget.child);
   }
 
   void _disposeAnimation() {
-    controller.dispose();
+    controller?.dispose();
     widget.item.removeListenerOnTimeStatus(_timeStatusListener);
   }
 
   void _initAnimation() {
     if (widget.item.hasTimer) {
       controller = AnimationController(
-        value: CommonUtils.convertRange(
+        value: ToastHelper.convertRange(
           0,
           widget.item.originalDuration!.inMicroseconds.toDouble(),
           0,
@@ -127,30 +131,24 @@ class _ToastTimerAnimationBuilderState extends State<ToastTimerAnimationBuilder>
       widget.item.addListenerOnTimeStatus(_timeStatusListener);
 
       if (widget.item.isStarted) {
-        controller.forward();
+        controller!.forward();
       }
-    } else {
-      controller = AnimationController(
-        value: 0,
-        duration: widget.item.originalDuration,
-        vsync: this,
-      );
     }
   }
 
   void _timeStatusListener() {
     switch (widget.item.timeStatus) {
       case ToastTimeStatus.init:
-        controller.reset();
+        controller?.reset();
         break;
       case ToastTimeStatus.started:
-        controller.forward();
+        controller?.forward();
         break;
       case ToastTimeStatus.paused:
-        controller.stop(canceled: false);
+        controller?.stop(canceled: false);
         break;
       case ToastTimeStatus.stopped:
-        controller.stop(canceled: false);
+        controller?.stop(canceled: false);
         break;
       case ToastTimeStatus.finished:
         break;
